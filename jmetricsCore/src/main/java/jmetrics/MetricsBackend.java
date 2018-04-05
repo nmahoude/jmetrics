@@ -1,6 +1,10 @@
 package jmetrics;
 
-@FunctionalInterface
+import java.util.List;
+
+import jmetrics.metrics.Metric;
+
 public interface MetricsBackend {
-  public void increment(String value);
+  public void call(String key, long duration);
+  public List<Metric> getAll();
 }

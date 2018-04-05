@@ -33,6 +33,11 @@
 			<artifactId>common</artifactId>
 			<version>3.0.0-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>nmx.jmetrics</groupId>
+			<artifactId>restendpoint</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
         <build>
 	<plugins>

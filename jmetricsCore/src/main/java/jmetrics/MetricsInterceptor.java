@@ -19,9 +19,14 @@ public class MetricsInterceptor implements Serializable {
   public Object aroundInvoke(InvocationContext ic) throws Exception {
     Method method = ic.getMethod();
     Metrics annotation = method.getAnnotation(Metrics.class);
+    
+    long start = System.currentTimeMillis();
+    Object result = ic.proceed();
+    long end = System.currentTimeMillis();
+    
     if (annotation != null) {
-      metrics.increment(annotation.value());
+      metrics.call(annotation.value(), end-start);
     }
-    return ic.proceed();
+    return result;
   }
 }

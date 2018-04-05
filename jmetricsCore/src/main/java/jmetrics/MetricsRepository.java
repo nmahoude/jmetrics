@@ -30,8 +30,16 @@ public class MetricsRepository {
     }
   }
   
-  void increment(String key) {
-    backends.forEach(backend -> backend.increment(key));
+  void call(String key, long duration) {
+    backends.forEach(backend -> backend.call(key, duration));
+  }
+
+  public MetricsBackend anyBackend() {
+    if (backends.isEmpty()) {
+      return null;
+    } else {
+      return backends.get(0);
+    }
   }
 
 }

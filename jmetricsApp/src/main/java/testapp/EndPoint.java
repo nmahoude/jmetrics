@@ -11,7 +11,7 @@ import jmetrics.Metrics;
 public class EndPoint {
 
   @GET
-  @Metrics("app.metrics.get")
+  @Metrics("app_metrics_get")
   public String hello() {
     return "Hello Word!";
   }

@@ -1,23 +1,30 @@
 package inmemory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import jmetrics.MetricsBackend;
+import jmetrics.metrics.Metric;
 
 public class InMemoryMetricsBackend implements MetricsBackend {
 
-  Map<String, AtomicInteger> values= new HashMap<>();
+  Map<String, Metric> metrics= new HashMap<>();
   
   @Override
-  public void increment(String key) {
-    AtomicInteger value = values.get(key);
-    if (value == null) {
-      value = new AtomicInteger(0);
-      values.put(key, value);
+  public void call(String key, long duration) {
+    Metric metric = metrics.get(key);
+    if (metric == null) {
+      metric = new Metric(key);
+      metrics.put(key, metric);
     }
-    int counter = value.incrementAndGet();
-    System.out.println("Calling Metrics backend for " + key + ", new value is " + counter);
+    long counter = metric.increment();
+    System.out.println("Calling Metrics backend for " + key + ", new counter is " + counter + ", duration of call was "+duration+ " ms");
+  }
+  
+  @Override
+  public List<Metric> getAll() {
+    return new ArrayList<>(metrics.values());
   }
 }
