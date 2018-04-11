@@ -10,18 +10,20 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonReader;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import jmetrics.MetricsRepository;
 import jmetrics.metrics.Metric;
 
 
-@Path("/")
+@Path("/metrics")
 public class JMetricRestEndpoint{
 
   @Inject MetricsRepository repository;
   
   @GET
-  @Path("/metrics")
+  @Produces(MediaType.APPLICATION_JSON)
   public JsonObject getMetrics() {
     JsonObjectBuilder job = Json.createObjectBuilder();
     
@@ -37,14 +39,13 @@ public class JMetricRestEndpoint{
   }
   
   @GET
-  @Path("/prometheus_metrics")
+  @Path("/prometheus")
   public String getPromotheusMetrics() {
-    StringBuilder result = new StringBuilder("");
+    PromotheusOutputVisitor promotheusVisitor = new PromotheusOutputVisitor();
     List<Metric> metrics = repository.anyBackend().getAll();
     metrics.forEach(m -> {
-      result.append(m.getName()).append(" ").append(m.getValue());
-      
+      m.visit(promotheusVisitor);
     }); 
-    return result.toString();
+    return promotheusVisitor.getOutput();
   }
 }

@@ -1,4 +1,4 @@
-package jmetrics;
+package jmetrics.interceptors;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -9,24 +9,29 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+import jmetrics.MetricsRepository;
+import jmetrics.annotations.Counter;
+import jmetrics.metrics.CounterInfo;
+
 @Interceptor
-@Metrics("")
+@Counter("")
 @Priority(Interceptor.Priority.APPLICATION)
-public class MetricsInterceptor implements Serializable {
+public class CounterInterceptor implements Serializable {
   @Inject MetricsRepository metrics;
   
   @AroundInvoke
   public Object aroundInvoke(InvocationContext ic) throws Exception {
     Method method = ic.getMethod();
-    Metrics annotation = method.getAnnotation(Metrics.class);
+    Counter counter = method.getAnnotation(Counter.class);
+
+    CounterInfo counterInfo = metrics.get(counter);
     
-    long start = System.currentTimeMillis();
+    counterInfo.before();
+    
     Object result = ic.proceed();
-    long end = System.currentTimeMillis();
-    
-    if (annotation != null) {
-      metrics.call(annotation.value(), end-start);
-    }
+
+    counterInfo.after();
+    metrics.publish(counterInfo);
     return result;
   }
 }

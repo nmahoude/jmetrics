@@ -10,12 +10,20 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import jmetrics.annotations.Chrono;
+import jmetrics.annotations.Counter;
+import jmetrics.metrics.ChronoInfo;
+import jmetrics.metrics.CounterInfo;
+import jmetrics.metrics.Info;
+
 @Singleton
 public class MetricsRepository {
   Logger LOGGER = Logger.getLogger("MetricsRepository");
   @Inject Instance<MetricsBackend> backendsCDI;
   List<MetricsBackend> backends = new ArrayList<>();
 
+  CounterInfo nullCounter = new CounterInfo("NULL");
+  ChronoInfo nullChrono = new ChronoInfo("NULL");
   
   @PostConstruct
   public void setup() {
@@ -30,10 +38,6 @@ public class MetricsRepository {
     }
   }
   
-  void call(String key, long duration) {
-    backends.forEach(backend -> backend.call(key, duration));
-  }
-
   public MetricsBackend anyBackend() {
     if (backends.isEmpty()) {
       return null;
@@ -42,4 +46,17 @@ public class MetricsRepository {
     }
   }
 
+  public CounterInfo get(Counter counter) {
+    if (counter == null) return nullCounter;
+    return new CounterInfo(counter.value());
+  }
+
+  public ChronoInfo get(Chrono chrono) {
+    return new ChronoInfo(chrono.value());
+  }
+  
+  public void publish(Info info) {
+    if (info == nullCounter || info == nullChrono) return;
+    backends.forEach(backend -> backend.publish(info));
+  }
 }

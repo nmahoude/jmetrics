@@ -1,4 +1,4 @@
-package jmetrics;
+package jmetrics.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,7 +13,7 @@ import javax.interceptor.InterceptorBinding;
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface Metrics {
+public @interface Counter {
   @Nonbinding
   public String value();
 }
