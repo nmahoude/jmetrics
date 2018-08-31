@@ -9,6 +9,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+import jmetrics.MetricsProducer;
 import jmetrics.MetricsRepository;
 import jmetrics.annotations.Counter;
 import jmetrics.metrics.CounterInfo;
@@ -21,17 +22,17 @@ public class CounterInterceptor implements Serializable {
   
   @AroundInvoke
   public Object aroundInvoke(InvocationContext ic) throws Exception {
+    if (ic.getMethod().getDeclaringClass() == MetricsProducer.class) return ic.proceed();
+
     Method method = ic.getMethod();
     Counter counter = method.getAnnotation(Counter.class);
 
     CounterInfo counterInfo = metrics.get(counter);
     
-    counterInfo.before();
-    
     Object result = ic.proceed();
-
-    counterInfo.after();
-    metrics.publish(counterInfo);
+    
+    counterInfo.inc();
+    
     return result;
   }
 }

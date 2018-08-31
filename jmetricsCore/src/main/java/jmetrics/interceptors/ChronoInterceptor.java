@@ -9,6 +9,7 @@ import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
+import jmetrics.MetricsProducer;
 import jmetrics.MetricsRepository;
 import jmetrics.annotations.Chrono;
 import jmetrics.metrics.ChronoInfo;
@@ -22,17 +23,18 @@ public class ChronoInterceptor implements Serializable {
   
   @AroundInvoke
   public Object aroundInvoke(InvocationContext ic) throws Exception {
+    if (ic.getMethod().getDeclaringClass() == MetricsProducer.class) return ic.proceed();
+    
     Method method = ic.getMethod();
     Chrono chrono = method.getAnnotation(Chrono.class);
 
     ChronoInfo  chronoInfo = metrics.get(chrono);
     
-    chronoInfo.before();
+    chronoInfo.start();
     
     Object result = ic.proceed();
 
-    chronoInfo.after();
-    metrics.publish(chronoInfo);
+    chronoInfo.stop();
     return result;
   }
 }

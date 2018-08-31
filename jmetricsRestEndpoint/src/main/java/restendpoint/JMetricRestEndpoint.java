@@ -1,13 +1,10 @@
 package restendpoint;
 
-import java.io.StringReader;
 import java.util.List;
 
 import javax.inject.Inject;
-import javax.json.Json;
 import javax.json.JsonObject;
-import javax.json.JsonObjectBuilder;
-import javax.json.JsonReader;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -25,22 +22,28 @@ public class JMetricRestEndpoint{
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public JsonObject getMetrics() {
-    JsonObjectBuilder job = Json.createObjectBuilder();
-    
+    JsonOutputVisitor jsonVisitor = new JsonOutputVisitor();
     List<Metric> metrics = repository.anyBackend().getAll();
     metrics.forEach(m -> {
-      JsonReader jsonReader = Json.createReader(new StringReader(m.toString()));
-      JsonObject object = jsonReader.readObject();
-      jsonReader.close();
-      job.add(m.getName(), object);
-    }
-        );
-    return job.build();
+      m.visit(jsonVisitor);
+    }); 
+    return jsonVisitor.output();
   }
   
   @GET
+  @Path("/")
+  @Produces("application/prometheus")
+  public String getPromotheusMetricsAsAccept() {
+    return producedPromotheusOutput();
+  }
+
+  @GET
   @Path("/prometheus")
   public String getPromotheusMetrics() {
+    return producedPromotheusOutput();
+  }
+
+  private String producedPromotheusOutput() {
     PromotheusOutputVisitor promotheusVisitor = new PromotheusOutputVisitor();
     List<Metric> metrics = repository.anyBackend().getAll();
     metrics.forEach(m -> {

@@ -12,7 +12,7 @@ import javax.interceptor.InterceptorBinding;
 @Qualifier
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
 public @interface Chrono {
   @Nonbinding
   public String value();

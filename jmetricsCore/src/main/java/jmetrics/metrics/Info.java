@@ -1,11 +1,13 @@
 package jmetrics.metrics;
 
-import jmetrics.MetricOutputVisitor;
+import jmetrics.MetricsRepository;
 
 public class Info {
+  private MetricsRepository repository;
   String key;
   
-  public Info(String key) {
+  public Info(MetricsRepository repository, String key) {
+    this.repository = repository;
     this.key = key;
   }
   public String getKey() {
@@ -15,4 +17,7 @@ public class Info {
     throw new RuntimeException("Not implemented");
   }
 
+  public void commit() {
+    repository.publish(this);
+  }
 }

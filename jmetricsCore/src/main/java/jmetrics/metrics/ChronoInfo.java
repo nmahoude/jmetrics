@@ -1,19 +1,22 @@
 package jmetrics.metrics;
 
+import jmetrics.MetricsRepository;
+
 public class ChronoInfo extends Info {
   long start;
   long end;
 
-  public ChronoInfo(String key) {
-    super(key);
+  public ChronoInfo(MetricsRepository repository,String key) {
+    super(repository, key);
   }
 
-  public void before() {
+  public void start() {
     start = System.currentTimeMillis();
   }
 
-  public void after() {
+  public void stop() {
     end = System.currentTimeMillis();
+    this.commit();
   }
 
   public long duration() {

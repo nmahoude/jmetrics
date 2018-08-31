@@ -12,8 +12,10 @@ import javax.inject.Singleton;
 
 import jmetrics.annotations.Chrono;
 import jmetrics.annotations.Counter;
+import jmetrics.annotations.Gauge;
 import jmetrics.metrics.ChronoInfo;
 import jmetrics.metrics.CounterInfo;
+import jmetrics.metrics.GaugeInfo;
 import jmetrics.metrics.Info;
 
 @Singleton
@@ -22,8 +24,9 @@ public class MetricsRepository {
   @Inject Instance<MetricsBackend> backendsCDI;
   List<MetricsBackend> backends = new ArrayList<>();
 
-  CounterInfo nullCounter = new CounterInfo("NULL");
-  ChronoInfo nullChrono = new ChronoInfo("NULL");
+  GaugeInfo nullGauge = new GaugeInfo(this, "NULL_GAUGE");
+  CounterInfo nullCounter = new CounterInfo(this, "NULL_COUNTER");
+  ChronoInfo nullChrono = new ChronoInfo(this, "NULL_CHRONO");
   
   @PostConstruct
   public void setup() {
@@ -48,11 +51,16 @@ public class MetricsRepository {
 
   public CounterInfo get(Counter counter) {
     if (counter == null) return nullCounter;
-    return new CounterInfo(counter.value());
+    return new CounterInfo(this, counter.value());
+  }
+
+  public GaugeInfo get(Gauge gauge) {
+    if (gauge == null) return nullGauge;
+    return new GaugeInfo(this, gauge.value());
   }
 
   public ChronoInfo get(Chrono chrono) {
-    return new ChronoInfo(chrono.value());
+    return new ChronoInfo(this, chrono.value());
   }
   
   public void publish(Info info) {
